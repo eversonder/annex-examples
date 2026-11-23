@@ -1,0 +1,14 @@
+# The machine the agent works on. Save it with: annex template apply
+name: issue-to-pr
+description: git, the GitHub CLI and Claude Code
+vcpu: 2
+memory_gib: 4
+route: cheapest
+secret_groups: [issue-to-pr]   # GH_TOKEN and ANTHROPIC_API_KEY, kept by Annex (dashboard, Secrets)
+setup:
+  - |
+    S=; [ "$(id -u)" = 0 ] || S=sudo
+    $S apt-get update && $S apt-get install -y git gh nodejs npm
+  - |
+    S=; [ "$(id -u)" = 0 ] || S=sudo
+    $S npm install -g @anthropic-ai/claude-code

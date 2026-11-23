@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Code interpreter</title>
+<style>
+  body { margin: 0; background: #F4EFE2; color: #1C1B19; font: 16px/1.5 Georgia, serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 32px 16px 140px; }
+  h1 { font-weight: 400; font-size: 2rem; margin: 0 0 24px; }
+  .msg { margin: 0 0 18px; white-space: pre-wrap; }
+  .you { font-family: ui-monospace, monospace; font-size: .9rem; color: #5b574d; }
+  .msg img { display: block; max-width: 100%; margin-top: 12px; border: 1px solid #d9d2bf; border-radius: 8px; background: #fff; }
+  form { position: fixed; bottom: 0; left: 0; right: 0; background: #F4EFE2; border-top: 1px solid #d9d2bf; }
+  form div { max-width: 720px; margin: 0 auto; padding: 12px 16px; display: flex; gap: 8px; flex-wrap: wrap; }
+  input[type=text] { flex: 1; min-width: 200px; padding: 10px 12px; border: 1px solid #1C1B19; border-radius: 8px; font: inherit; background: #FBF8EF; }
+  button { padding: 10px 18px; border: 0; border-radius: 8px; background: #1F3B3A; color: #F4EFE2; font: inherit; cursor: pointer; }
+  button:disabled { opacity: .5; }
+</style>
+<main>
+  <h1>Ask about your data</h1>
+  <div id="log"><p class="msg">Attach a CSV and ask a question, or just ask for a calculation or a chart. The first message starts a sandbox, which takes a moment.</p></div>
+</main>
+<form id="f"><div>
+  <input type="text" id="t" placeholder="Plot sales by month" autocomplete="off" required aria-label="Your question">
+  <input type="file" id="file" aria-label="A file to analyse">
+  <button id="b">Send</button>
+</div></form>
+<script>
+  const id = crypto.randomUUID(), log = document.getElementById('log')
+  const add = (cls, text, images = []) => {
+    const p = document.createElement('p'); p.className = 'msg ' + cls; p.textContent = text
+    for (const src of images) { const i = new Image(); i.src = src; i.alt = 'Chart'; p.append(i) }
+    log.append(p); p.scrollIntoView(); return p
+  }
+  document.getElementById('f').onsubmit = async (e) => {
+    e.preventDefault()
+    const t = document.getElementById('t'), fi = document.getElementById('file'), b = document.getElementById('b')
+    const text = t.value, f = fi.files[0]
+    let file
+    if (f) file = { name: f.name, data: btoa(new Uint8Array(await f.arrayBuffer()).reduce((s, x) => s + String.fromCharCode(x), '')) }
+    add('you', '> ' + text + (f ? `  [${f.name}]` : '')); t.value = ''; fi.value = ''; b.disabled = true
+    const wait = add('', 'Working…')
+    try {
+      const r = await (await fetch('/chat', { method: 'POST', body: JSON.stringify({ id, text, file }) })).json()
+      wait.remove(); add('', r.text, r.images)
+    } catch { wait.textContent = 'The server did not answer.' }
+    b.disabled = false; t.focus()
+  }
+</script>
+</html>

@@ -1,0 +1,10 @@
+# Every model is judged on an identical machine. Save it with: annex template apply
+name: evals
+description: A clean machine with Python
+vcpu: 1
+memory_gib: 1
+route: cheapest
+setup:
+  - |
+    S=; [ "$(id -u)" = 0 ] || S=sudo
+    command -v python3 >/dev/null || { $S apt-get update && $S apt-get install -y python3; }

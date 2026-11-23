@@ -1,0 +1,6 @@
+https://example.com
+https://www.iana.org/help/example-domains
+https://www.rfc-editor.org/rfc/rfc2606.txt
+https://www.rfc-editor.org/rfc/rfc6761.txt
+https://en.wikipedia.org/wiki/Raspberry_Pi
+https://en.wikipedia.org/wiki/Mac_Mini
